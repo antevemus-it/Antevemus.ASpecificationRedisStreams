@@ -1,0 +1,41 @@
+// Mutation testing of antevemus/aspecification-redis-streams (1.0.0): the whole src/. Runs in the scheduled
+// workflow (.github/workflows/quality.yml) with a coverage driver (pcov) and a Redis 7.4 service; locally,
+// against a Redis server for tests (see phpunit.xml.dist):
+//
+//   ASPEC_REDIS_HOST=127.0.0.1 ASPEC_REDIS_PORT=16379 XDEBUG_MODE=off vendor/bin/infection --threads=max \
+//       --only-covering-test-cases --initial-tests-php-options="-d pcov.enabled=1 -d pcov.directory=$PWD/src"
+//
+// Measured on 2026-11-15 (1.0.0 against ASpecification 2.14.0, Infection 0.35.11, PHP 8.4.27 with pcov, Redis
+// 7.4): 378 mutants, 374 killed, 0 errors, 0 syntax errors, 1 time-out (the loop over the pages of the dead
+// letter stream made endless), 3 escaped, all equivalent:
+// - RedisStreamsSource::addClaimed(): the COUNT 1 of `XPENDING <stream> <group> <id> <id> 1` turned into 2; the
+//   range holds one entry id, so any count of at least 1 answers the same;
+// - RedisStreamsSource::claimReady(): the minimum idle time 0 of the XCLAIM of the deliveries given back turned
+//   into -1, which Redis reads as 0, and into 1 ms, which differs only when the rejection and the next receive
+//   fall in the same millisecond of the server (the entry would not be claimed yet).
+//   testADeliveryGivenBackComesAgainAtOnce tries that a hundred times in a row and kills the mutant on a machine
+//   at rest, but cannot force it under the load of a mutation run.
+// MSI 99.21%, covered-code MSI 99.21%, mutation code coverage 100%. The minimum scores are one integer point
+// below.
+{
+    "$schema": "vendor/infection/infection/resources/schema.json",
+    "source": {
+        "directories": ["src"]
+    },
+    "timeout": 60,
+    "logs": {
+        "text": "coverage/infection/infection.log",
+        "summary": "coverage/infection/summary.log",
+        "json": "coverage/infection/infection.json",
+        "perMutator": "coverage/infection/per-mutator.md"
+    },
+    "tmpDir": "coverage/infection/tmp",
+    "phpUnit": {
+        "configDir": "."
+    },
+    "minMsi": 98,
+    "minCoveredMsi": 98,
+    "mutators": {
+        "@default": true
+    }
+}

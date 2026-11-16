@@ -1,0 +1,57 @@
+{
+  "name": "antevemus/aspecification-redis-streams",
+  "description": "Redis Streams satellite of antevemus/aspecification: the transport and the source of its messaging hook over Redis Streams (XADD, consumer groups, XAUTOCLAIM recovery, dead letter stream), at-least-once with per-key order, over predis",
+  "type": "library",
+  "license": "MIT",
+  "homepage": "https://github.com/antevemus-it/Antevemus.ASpecificationRedisStreams",
+  "support": {
+    "source": "https://github.com/antevemus-it/Antevemus.ASpecificationRedisStreams",
+    "issues": "https://github.com/antevemus-it/Antevemus.ASpecificationRedisStreams/issues",
+    "docs": "https://github.com/antevemus-it/Antevemus.ASpecificationRedisStreams#readme"
+  },
+  "keywords": [
+    "specification",
+    "messaging",
+    "outbox",
+    "inbox",
+    "redis",
+    "redis-streams",
+    "consumer-group",
+    "at-least-once",
+    "predis",
+    "php82"
+  ],
+  "authors": [
+    {
+      "name": "Heliton Junior - CTO @ Antevemus Soluções Inovadoras em TI Ltda.",
+      "email": "contato@antevemus.com.br",
+      "homepage": "https://antevemus.com.br"
+    }
+  ],
+  "require": {
+    "php": "^8.2",
+    "antevemus/aspecification": "^2.14",
+    "predis/predis": "^2.0"
+  },
+  "require-dev": {
+    "phpunit/phpunit": "^11.0",
+    "infection/infection": "^0.31.9 || ^0.35.6"
+  },
+  "autoload": {
+    "psr-4": {
+      "Antevemus\\ASpecificationRedisStreams\\": "src/"
+    }
+  },
+  "autoload-dev": {
+    "psr-4": {
+      "Antevemus\\ASpecificationRedisStreams\\Tests\\": "tests/"
+    }
+  },
+  "minimum-stability": "stable",
+  "prefer-stable": true,
+  "config": {
+    "allow-plugins": {
+      "infection/extension-installer": false
+    }
+  }
+}

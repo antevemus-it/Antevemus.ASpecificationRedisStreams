@@ -1,0 +1,31 @@
+# Changelog
+
+All notable changes to this package are recorded here. The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and the package follows [Semantic Versioning](https://semver.org/).
+
+## [Unreleased]
+
+## [1.0.0] - 2026-11-15
+
+The first release: the Redis Streams satellite of the messaging hook of `antevemus/aspecification` 2.14.0 (namespace `Antevemus\ASpecification\Messaging`). It requires the core `^2.14`, the release that added the hook, and `predis/predis` `^2`; no PHP extension is required.
+
+### Added
+
+- **`RedisStreamsTransport`** (final, implements `IMessageTransport`): `new RedisStreamsTransport(Predis\ClientInterface $redis, RedisStreamsTopology $topology = new RedisStreamsTopology())`, `getTopology()`. `send()` appends every message of the batch to the stream of its name, `<prefix>.<name>`, in one round trip, by one Lua script per message that increments the counter `<prefix>.seq` and appends the entry atomically (`XADD`, with `MAXLEN ~` when the topology caps the streams). Confirmed = Redis answered the id of the new entry, which is the broker id of the result. The entry holds `seq` (the global order of the writes), `message_id`, `name`, `ordering_key` and `tenant` (when the message has them) and `body`, the wire form of the core (`Message::toJson()`, with the tenant and the headers). A message Redis refused fails alone, with a reason that names the message, the stream and the error code of Redis; a connection that fails fails the whole batch with one reason.
+- **`RedisStreamsSource`** (final, implements `IMessageSource`): `new RedisStreamsSource(Predis\ClientInterface $redis, string $group, array $messageNames, ?string $consumerName = null, RedisStreamsTopology $topology = new RedisStreamsTopology())`, `getGroup()`, `getConsumerName()` (default `<host>-<pid>`), `getStreams()`, `getTopology()`, `inFlightCount()`.
+  - `declare(bool $fromStart = false)`: the consumer group on every stream (`XGROUP CREATE ... $|0 MKSTREAM`, a group that exists is kept), called by the first `receive()`.
+  - `receive($max, $waitMs)`: the deliveries of a dead member idle longer than `recoverIdleMs` (`XAUTOCLAIM`, walking the pending entries of the group), the deliveries this member gave back or left unanswered (listed by `XPENDING`, claimed again by `XCLAIM`), the entries read and not yet handed out, and new entries (`XREADGROUP ... >`, blocking for at most `min($waitMs, maxBlockMs)` when there is nothing else), merged by the global order of the writes, the first `$max` handed out. Every stream is read far enough that no entry left behind can come before one handed out: the deliveries of an ordering key come in the order written, across the streams of several names, and a delivery given back comes again before any later delivery of its key.
+  - The delivery count is the counter of Redis for the entry in the group (`XPENDING`); the broker id is `<stream>#<entry id>`.
+  - `ack()` = `XACK`; `reject($requeue = true)` keeps the delivery pending in this member, to be claimed again first; `reject($requeue = false)` appends a dead letter to `<prefix>.dead` (the stream, the entry id, the group, the member, the delivery count, the reason cut at 2 000 characters, the message id, name, ordering key and tenant, the original body) and acknowledges the original, in one atomic Lua script. Answering a delivery that is not in flight here is a `MessagingException`.
+  - `deadLetters(int $limit = 100)`: the dead letters of the group, oldest first.
+  - What cannot be read back as a message is an invalid delivery, never dropped: a body that is not the wire form of format 1, an entry without `body`, an entry deleted while pending.
+- **`RedisStreamsTopology`** (final): the `prefix` (default `aspec`, 1 to 64 characters of `[A-Za-z0-9_.:{}-]`, not ending with a dot), `maxLen` (default none), `recoverIdleMs` (default 60 000; `null` = no recovery) and `maxBlockMs` (default 5 000); `streamOf()`, `deadLetterStream()`, `sequenceKey()`.
+- **`RedisStreamsException`** (final, a `MessagingException` of the core): the connection failed (the class of the exception of the client, and the message of a failed connection) or Redis refused (its error code only); never a value of a message.
+- **Documentation** in `docs/en` and `docs/pt-BR` (Docs Kit format): Getting started, Delivery, order and failures, the three classes, Tests, Roadmap; the README of each language is an index whose only code is the Quick Start. Every one of the 7 PHP blocks per language is run by `DocumentationBlocksTest`, the five that talk to Redis against the test server.
+- **CI**: `tests.yml` (PHP 8.2, 8.3 and 8.4 with a `redis:7.4-alpine` service, `composer validate --strict`, PHPUnit) and `quality.yml` (Infection over the whole `src/`, with the Redis service and a minimum MSI).
+
+### Notes
+
+- Uses only the public API of the core 2.14.0 (`IMessageTransport`, `TransportSendResult`, `IMessageSource`, `ReceivedMessage::of()/invalid()/decode()`, `Message`, `ProcessedMessage::assertConsumer()`, `MessagingException`); the core is not changed.
+- Needs Redis 7.0 or later (`XAUTOCLAIM` reporting the deleted entries); tested on Redis 7.4. A Redis Cluster is not tested.
+- Suite: 152 tests, 3 947 assertions with a Redis 7.4 server, on PHP 8.4.27 and on PHP 8.2.34 (85 tests are skipped without a server): the contract battery (16 scenarios) run against the in-memory broker of the core and against Redis with the same transcripts, the integration tests of the transport (9) and of the source (45), a property of 3 seeds × 150 steps against both brokers, the pure rules and the documentation.
+- Mutation testing over the whole `src/`: 378 mutants, 374 killed, 1 time-out, 3 escaped, all equivalent (listed in `infection.json5`); MSI 99.21%.

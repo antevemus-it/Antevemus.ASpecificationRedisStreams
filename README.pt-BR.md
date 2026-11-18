@@ -69,7 +69,7 @@ A documentação oficial fica em [docs/pt-BR](docs/pt-BR/index.md) (e em inglês
 | [RedisStreamsTopology](docs/pt-BR/api/topology.md) | O prefixo das chaves, o teto dos streams, o tempo ocioso da recuperação, o bloqueio mais longo. |
 | [RedisStreamsTransport](docs/pt-BR/api/transport.md) | O gancho de saída: o que uma entrada guarda, o que é confirmado e o que falha. |
 | [RedisStreamsSource](docs/pt-BR/api/source.md) | O gancho de entrada: o grupo e seus membros, `receive()`, `ack()`, `reject()`, `deadLetters()`. |
-| [Testes](docs/pt-BR/quality/tests.md) | A bateria de contrato contra o broker em memória do núcleo e um Redis real, os cenários de falha, a propriedade e o teste de mutação. |
+| [Testes](docs/pt-BR/quality/tests.md) | A bateria de contrato do núcleo ([Escrevendo um satélite](https://github.com/antevemus-it/Antevemus.ASpecification/blob/main/docs/pt-BR/messaging/writing-a-satellite.md)) rodada contra um Redis real, com a sua sequência de propriedade, os testes do próprio Redis e o teste de mutação. |
 | [Roadmap](docs/pt-BR/project/roadmap.md) | O que foi entregue e o que pode vir. |
 
 ## Licença

@@ -4,9 +4,9 @@
 
   Coverage is not configured by default so that the run does not require Xdebug or PCOV.
 
-  The tests that need Redis (group redis: tests/Contract/RedisStreamsContractTest, tests/Integration,
-  tests/Property, and the documentation blocks that talk to Redis) are opt-in and run against a Redis 7.4
-  server for tests given by the environment:
+  The tests that need Redis (group redis: tests/Contract/RedisStreamsContractTest, the contract battery of
+  the core, tests/Integration, and the documentation blocks that talk to Redis) are opt-in and run against a
+  Redis 7.4 server for tests given by the environment:
 
     ASPEC_REDIS_HOST=127.0.0.1 ASPEC_REDIS_PORT=6379 ASPEC_REDIS_DATABASE=15 vendor/bin/phpunit
 
@@ -40,9 +40,6 @@
         </testsuite>
         <testsuite name="Integration">
             <directory>tests/Integration</directory>
-        </testsuite>
-        <testsuite name="Property">
-            <directory>tests/Property</directory>
         </testsuite>
     </testsuites>
 

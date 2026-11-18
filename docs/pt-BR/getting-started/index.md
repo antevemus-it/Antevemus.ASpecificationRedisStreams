@@ -8,7 +8,7 @@ Instale pelo Composer:
 composer require antevemus/aspecification-redis-streams
 ```
 
-Requisitos: PHP 8.2 ou posterior e um servidor **Redis 7.0 ou posterior** (testado no 7.4). Instalados junto: [`antevemus/aspecification`](https://github.com/antevemus-it/Antevemus.ASpecification) `^2.14` (o núcleo, do mesmo autor, em cujo gancho de mensageria este pacote se encaixa) e [`predis/predis`](https://github.com/predis/predis) `^2` (um cliente Redis em PHP puro). Nenhuma extensão do PHP é exigida: a `ext-redis` não é usada.
+Requisitos: PHP 8.2 ou posterior e um servidor **Redis 7.0 ou posterior** (testado no 7.4). Instalados junto: [`antevemus/aspecification`](https://github.com/antevemus-it/Antevemus.ASpecification) `^2.15` (o núcleo, do mesmo autor, em cujo gancho de mensageria este pacote se encaixa) e [`predis/predis`](https://github.com/predis/predis) `^2` (um cliente Redis em PHP puro). Nenhuma extensão do PHP é exigida: a `ext-redis` não é usada.
 
 Para que serve: levar as mensagens do gancho de mensageria do núcleo entre os módulos de uma aplicação pelo Redis Streams. A aplicação continua publicando na outbox do núcleo, dentro da sua própria transação; o `OutboxRelay` do núcleo envia a outbox ao Redis pelo `RedisStreamsTransport`, e cada `MessageConsumer` do núcleo lê o seu próprio grupo de consumidores pelo `RedisStreamsSource`. Nada aqui usa o Pub/Sub do Redis, que perde o que é publicado enquanto um consumidor está fora.
 

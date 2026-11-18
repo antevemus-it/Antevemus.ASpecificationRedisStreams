@@ -3,6 +3,7 @@
 ## Entregue
 
 - **1.0.0:** o `RedisStreamsTransport` (o gancho de saída: um stream por nome de mensagem, a ordem global das escritas, o teto aproximado, uma mensagem recusada falhando sozinha e uma conexão perdida fazendo falhar o lote) e o `RedisStreamsSource` (o gancho de entrada: um grupo de consumidores por consumidor, a junção dos streams na ordem escrita, uma entrega devolvida antes das posteriores da sua chave, o stream da fila morta, a recuperação de um processo morto, entregas inválidas nunca descartadas), com a `RedisStreamsTopology`, para o gancho de mensageria da ASpecification 2.14.0.
+- **1.0.1:** o contrato do gancho é testado pela bateria pública da ASpecification 2.15.0 (`MessagingContractTestCase`, ver [Escrevendo um satélite](https://github.com/antevemus-it/Antevemus.ASpecification/blob/main/docs/pt-BR/messaging/writing-a-satellite.md)) rodada contra o Redis, em vez de uma cópia privada dela; a API não muda e o núcleo passa a ser exigido em `^2.15`.
 
 ## Sob demanda
 

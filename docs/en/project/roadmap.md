@@ -3,6 +3,7 @@
 ## Shipped
 
 - **1.0.0:** `RedisStreamsTransport` (the hook out: one stream per message name, the global order of the writes, the approximate cap, a refused message failing alone and a lost connection failing the batch) and `RedisStreamsSource` (the hook in: one consumer group per consumer, the merge of the streams in the order written, a delivery given back before the later ones of its key, the dead letter stream, the recovery of a dead process, invalid deliveries never dropped), with `RedisStreamsTopology`, for the messaging hook of ASpecification 2.14.0.
+- **1.0.1:** the contract of the hook is tested by the public battery of ASpecification 2.15.0 (`MessagingContractTestCase`, see [Writing a satellite](https://github.com/antevemus-it/Antevemus.ASpecification/blob/main/docs/en/messaging/writing-a-satellite.md)) run against Redis, instead of a private copy of it; the API is unchanged and the core is required at `^2.15`.
 
 ## On demand
 

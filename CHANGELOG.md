@@ -4,6 +4,23 @@ All notable changes to this package are recorded here. The format follows [Keep 
 
 ## [Unreleased]
 
+## [1.0.1] - 2026-11-18
+
+The contract tests move to the public battery of the core: `antevemus/aspecification` 2.15.0 ships `Antevemus\ASpecification\Messaging\Testing\MessagingContractTestCase`, the contract battery of `IMessageTransport` and `IMessageSource` for every broker satellite (the union of the private batteries of the Redis Streams and RabbitMQ satellites), and this package now runs it against Redis instead of a copy of its own. The public API (`src/`) is unchanged, and so is its behaviour; the floor of the core rises to `^2.15`.
+
+### Changed
+
+- **Requires `antevemus/aspecification` `^2.15`** (was `^2.14`): the first version that ships the battery, so the suite of this package is tested against the contract of the core it installs. Nothing of `src/` uses an API added in 2.15.
+- **Tests: the battery of the core.** `RedisStreamsContractTest` extends `MessagingContractTestCase` and answers `createBench()` with `RedisStreamsBench` (new, `tests/Support/`), an `IMessagingBench` over this package and the test server: a prefix of keys of its own per bench, deleted by `close()`; `successor()` waits past an idle time of 40 ms and returns another member of the group, which recovers by `XAUTOCLAIM` what the dead one held; `restarted()` opens the same member again, which claims its pending deliveries at once; `transportWithLostConnection()` is a transport over a port where nothing listens; `storeRaw()` writes an entry of another producer; `deadLetters()` reads the dead letter stream of the group. It runs the 22 scenarios of the battery against Redis (27 tests: the property sequence once per each of its 6 seeds, 150 steps each). How the battery works: [Writing a satellite](https://github.com/antevemus-it/Antevemus.ASpecification/blob/main/docs/en/messaging/writing-a-satellite.md).
+- **Tests removed:** the private battery (`tests/Contract/MessagingContractTestCase.php`, 16 scenarios) and its run against the in-memory reference (`InMemoryContractTest`), since the core runs its battery against that reference; the property test (`tests/Property/MessagingPropertyTest.php`, 3 seeds × 150 steps), since the property sequence of the battery keeps its three seeds among six and adds lost connections, successors and handlers that fail twice; and their support (`BrokerFixture`, `RedisStreamsBroker`, `InMemoryBroker`, `Harness`, `CrashingOutbox`, `DyingSource`, `EffectLog`, `LostConnectionTransport`). The `Property` suite leaves `phpunit.xml.dist`. The battery of the core compares the order within an ordering key and the multiset of the rest; the order between keys, which the private battery also compared and the contract does not promise, is no longer asserted on deliveries. The global order of the writes across streams, a promise of this package, stays in the integration tests.
+- **Tests added:** `RedisStreamsSourceTest::testTheDeliveriesGivenBackAreListedPastWhatIsKnownInTheirStream`: a delivery given back is listed (`XPENDING`) past the entries read and not handed out in its stream, and claimed again first; until now only a parallel mutation run (by a race between processes) caught the mutant that drops that count.
+
+### Notes
+
+- No change of `src/`, of the documentation of the API, nor of the behaviour against Redis: the battery of the core passed against Redis 7.4 at the first run.
+- Suite: 142 tests, 4 548 assertions with a Redis 7.4 server, on PHP 8.4.27 and on PHP 8.2.34 (94 tests are skipped without a server): the battery of the core (27 tests), the integration tests of the transport (9) and of the source (46), the pure rules and the documentation. 1.0.0 had 152 tests and 3 947 assertions.
+- Mutation testing over the whole `src/`, with one thread: 378 mutants, 370 killed, 6 time-outs, 2 escaped, both equivalent (listed in `infection.json5`); MSI 99.47% (1.0.0: 99.21%). The minimum scores stay at 98. The scheduled Quality workflow now runs Infection with one thread (`--threads=1`): with parallel threads the documentation blocks that talk to Redis share the keys of the default prefix, and a race between two processes killed mutants, so the score read higher than it is (99.74% for 1.0.1).
+
 ## [1.0.0] - 2026-11-15
 
 The first release: the Redis Streams satellite of the messaging hook of `antevemus/aspecification` 2.14.0 (namespace `Antevemus\ASpecification\Messaging`). It requires the core `^2.14`, the release that added the hook, and `predis/predis` `^2`; no PHP extension is required.

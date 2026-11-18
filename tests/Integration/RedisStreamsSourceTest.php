@@ -21,7 +21,7 @@ use Predis\ClientInterface;
  * not handed out, the delivery count, the requeue, the dead letters, the idle recovery, the invalid
  * deliveries and every failure of Redis.
  *
- * @version    1.0.0
+ * @version    1.0.1
  * @package    Antevemus\ASpecificationRedisStreams\Tests
  * @subpackage Integration
  */
@@ -629,6 +629,24 @@ final class RedisStreamsSourceTest extends RedisTestCase
         $source->reject($deliveries[3], true, 'later');
         $source->reject($deliveries[2], true, 'later');
         $this->assertSame(['b3', 'a1'], $this->labels($source->receive(2, 0)), 'b1 and b2 in flight before b3 in its stream');
+    }
+
+    public function testTheDeliveriesGivenBackAreListedPastWhatIsKnownInTheirStream(): void
+    {
+        $source = $this->source([self::A, self::B]);
+        $source->declare();
+        $transport = $this->transport();
+        $transport->send([$this->message(self::B, 'b1')]);
+        $transport->send([$this->message(self::A, 'a1')]);
+        // Another producer writes a message without `seq`: it sorts before every entry of the transport.
+        $this->redis->executeRaw(['XADD', $this->prefix . '.' . self::A, '*', 'body', $this->message(self::A, 'f1')->toJson()]);
+
+        $deliveries = $source->receive(2, 0);
+        $this->assertSame(['f1', 'b1'], $this->labels($deliveries), 'a1 read, not handed out');
+        $source->reject($deliveries[0], true, 'later');
+        $again = $source->receive(1, 0);
+        $this->assertSame(['f1'], $this->labels($again), 'a1 known before f1 in its stream: f1 listed past it, claimed again first');
+        $this->assertSame([2], array_map(static fn(ReceivedMessage $d): int => $d->deliveryCount, $again));
     }
 
     public function testTheRecoveryWalksThePendingEntriesOfTheGroup(): void

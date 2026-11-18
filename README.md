@@ -69,7 +69,7 @@ The official documentation lives in [docs/en](docs/en/index.md) (and in Portugue
 | [RedisStreamsTopology](docs/en/api/topology.md) | The prefix of the keys, the cap of the streams, the idle time of the recovery, the longest block. |
 | [RedisStreamsTransport](docs/en/api/transport.md) | The hook out: what an entry holds, what is confirmed and what fails. |
 | [RedisStreamsSource](docs/en/api/source.md) | The hook in: the group and its members, `receive()`, `ack()`, `reject()`, `deadLetters()`. |
-| [Tests](docs/en/quality/tests.md) | The contract battery against the core's in-memory broker and a real Redis, the failure scenarios, the property and the mutation testing. |
+| [Tests](docs/en/quality/tests.md) | The contract battery of the core ([Writing a satellite](https://github.com/antevemus-it/Antevemus.ASpecification/blob/main/docs/en/messaging/writing-a-satellite.md)) run against a real Redis, with its property sequence, the tests of Redis itself and the mutation testing. |
 | [Roadmap](docs/en/project/roadmap.md) | What shipped and what may come. |
 
 ## License

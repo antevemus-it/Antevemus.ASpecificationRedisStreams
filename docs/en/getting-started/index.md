@@ -8,7 +8,7 @@ Install via Composer:
 composer require antevemus/aspecification-redis-streams
 ```
 
-Requirements: PHP 8.2 or later and a **Redis 7.0 or later** server (tested on 7.4). Installed with it: [`antevemus/aspecification`](https://github.com/antevemus-it/Antevemus.ASpecification) `^2.14` (the core, from the same author, whose messaging hook this package plugs into) and [`predis/predis`](https://github.com/predis/predis) `^2` (a Redis client in pure PHP). No PHP extension is required: `ext-redis` is not used.
+Requirements: PHP 8.2 or later and a **Redis 7.0 or later** server (tested on 7.4). Installed with it: [`antevemus/aspecification`](https://github.com/antevemus-it/Antevemus.ASpecification) `^2.15` (the core, from the same author, whose messaging hook this package plugs into) and [`predis/predis`](https://github.com/predis/predis) `^2` (a Redis client in pure PHP). No PHP extension is required: `ext-redis` is not used.
 
 What it is for: carrying the messages of the core's messaging hook between the modules of an application through Redis Streams. The application keeps publishing into the outbox of the core, inside its own transaction; the `OutboxRelay` of the core sends the outbox to Redis through `RedisStreamsTransport`, and each `MessageConsumer` of the core reads its own consumer group through `RedisStreamsSource`. Nothing here talks to Redis Pub/Sub, which loses what is published while a consumer is away.
 

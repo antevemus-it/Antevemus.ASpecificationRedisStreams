@@ -23,7 +23,7 @@ The official documentation of the package, one page per topic. The same pages ex
 
 ### Quality
 
-- [Tests](quality/tests.md): the contract battery run against the core's in-memory broker and a real Redis, the failure scenarios, the property over random interleavings and the mutation testing.
+- [Tests](quality/tests.md): the contract battery of the core ([Writing a satellite](https://github.com/antevemus-it/Antevemus.ASpecification/blob/main/docs/en/messaging/writing-a-satellite.md)) run against a real Redis, with its property sequence over random interleavings, the tests of Redis itself and the mutation testing.
 
 ### Project
 

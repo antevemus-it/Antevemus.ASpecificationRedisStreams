@@ -1,7 +1,9 @@
 name: Quality
 
 # Mutation testing with Infection over the whole src/, with the minimum scores of infection.json5 (measured
-# locally for 1.0.0, set one point below), against a Redis 7.4 service.
+# locally for 1.0.1 with one thread, set one point below), against a Redis 7.4 service. One thread, because
+# the documentation blocks that talk to Redis share the keys of the default prefix and two processes running
+# them at once kill mutants by that race (see infection.json5).
 on:
   schedule:
     # Mondays, 07:53 UTC.
@@ -48,7 +50,7 @@ jobs:
         run: composer install --no-interaction --no-progress --prefer-dist
 
       - name: Infection
-        run: vendor/bin/infection --threads=max --only-covering-test-cases --no-interaction --no-progress --logger-github=false
+        run: vendor/bin/infection --threads=1 --only-covering-test-cases --no-interaction --no-progress --logger-github=false
 
       - name: Summary
         if: always()

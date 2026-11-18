@@ -23,7 +23,7 @@ A documentação oficial do pacote, uma página por assunto. As mesmas páginas 
 
 ### Qualidade
 
-- [Testes](quality/tests.md): a bateria de contrato rodada contra o broker em memória do núcleo e um Redis real, os cenários de falha, a propriedade sobre intercalações aleatórias e o teste de mutação.
+- [Testes](quality/tests.md): a bateria de contrato do núcleo ([Escrevendo um satélite](https://github.com/antevemus-it/Antevemus.ASpecification/blob/main/docs/pt-BR/messaging/writing-a-satellite.md)) rodada contra um Redis real, com a sua sequência de propriedade sobre intercalações aleatórias, os testes do próprio Redis e o teste de mutação.
 
 ### Projeto
 
